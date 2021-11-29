@@ -1,0 +1,5 @@
+application:
+  name: "dumb-data-viz-api"
+data:
+  endpoints:
+    crime: "https://data.cityofchicago.org/resource/crimes.json"
