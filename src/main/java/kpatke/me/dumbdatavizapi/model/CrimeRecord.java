@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CrimeRecord {
   private String id;
   private String date;
@@ -18,5 +18,11 @@ public class CrimeRecord {
   private String updatedDate;
   private String latitude;
   private String longitude;
+
+  @Override
+  public String toString() {
+    var template = "ID: %s\nDate: %s\nPrimary Type: %s\nDescription: %s\n";
+    return String.format(template, this.id, this.date, this.primaryType, this.description);
+  }
 
 }
