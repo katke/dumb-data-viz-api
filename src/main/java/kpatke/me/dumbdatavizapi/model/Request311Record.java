@@ -3,10 +3,11 @@ package kpatke.me.dumbdatavizapi.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import org.springframework.util.StringUtils;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Request311 {
+public class Request311Record {
 
   @JsonProperty("sr_number")
   private String requestNumber;
@@ -30,5 +31,15 @@ public class Request311 {
   private String streetType;
   private String latitude;
   private String longitude;
+
+  @Override
+  public String toString() {
+    var template = "Req Num: %s\nCreated: %s\nReq Type: %s\nReq Street Address: %s";
+    var address = this.streetAddress;
+    if (!StringUtils.hasText(address)) {
+      address = "Address not included";
+    }
+    return String.format(template, this.requestNumber, this.createdDate, this.requestType, address);
+  }
 
 }
