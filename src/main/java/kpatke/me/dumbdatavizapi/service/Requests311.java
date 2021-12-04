@@ -7,29 +7,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 
 @Getter
-@Component
-public class CrimeStats implements ApiRequest {
+public class Requests311 implements ApiRequest {
+  private static final Logger logger = LoggerFactory.getLogger(Requests311.class);
 
-  private static final Logger logger = LoggerFactory.getLogger(CrimeStats.class);
-
-  private @Value("${data.endpoints.crime}") String endpoint;
+  private @Value("${data.endpoints.311requests}") String endpoint;
   private final HttpMethod method = HttpMethod.GET;
+  private final String dibsRemovalQueryParam = "?sr_short_code=SDW";
 
-  public RestTemplate generateRestTemplate() {
-    return new RestTemplateBuilder()
-    .rootUri(endpoint)
-    .build();
+  // TODO improve design to better support multiple query strings on the same API
+  public String getEndpoint() {
+    return String.format("%s?%s", this.endpoint, dibsRemovalQueryParam);
   }
 
   public void makeRequest() {
     var restTemplate = this.generateRestTemplate();
-    var responseEntity = restTemplate.getForEntity(this.endpoint, CrimeRecord[].class);
+    var responseEntity = restTemplate.getForEntity(this.getEndpoint(), CrimeRecord[].class);
     logger.info(responseEntity.getStatusCode().toString());
     if (responseEntity.getBody() != null) {
       var arbitraryFirstRecord = Arrays.stream(responseEntity.getBody()).findFirst();
@@ -39,5 +40,10 @@ public class CrimeStats implements ApiRequest {
     }
   }
 
+  public RestTemplate generateRestTemplate() {
+    return new RestTemplateBuilder()
+        .rootUri(this.getEndpoint())
+        .build();
+  }
 
 }
