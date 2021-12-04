@@ -1,6 +1,8 @@
 package kpatke.me.dumbdatavizapi;
 
 import kpatke.me.dumbdatavizapi.service.CrimeStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class Runner implements CommandLineRunner {
+  private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
   @Autowired
   CrimeStats crimeStats;
@@ -22,8 +25,7 @@ public class Runner implements CommandLineRunner {
       crimeStats.makeRequest();
       System.exit(0);
     } catch(Exception ex) {
-      // TODO set up proper logger
-      System.out.println("Error: " + ex.getMessage());
+      logger.error("Error: " + ex.getMessage());
       System.exit(1);
     }
   }
