@@ -1,4 +1,4 @@
-package kpatke.me.dumbdatavizapi.service;
+package kpatke.me.dumbdatavizapi.repository;
 
 import kpatke.me.dumbdatavizapi.model.Request311Record;
 import lombok.Getter;
@@ -16,19 +16,19 @@ import java.util.Arrays;
 public class Requests311 implements ApiRequest {
   private static final Logger logger = LoggerFactory.getLogger(Requests311.class);
 
-  private @Value("${data.endpoints.311requests}") String endpoint;
+  private static @Value("${data.endpoints.311requests}") String baseEndpoint;
+  private static @Value("${data.endpoints.311requests.codes.dibs}") String dibsCode;
+  private static @Value("${data.endpoints.311requests.codes.cable}") String cableCode;
   private final HttpMethod method = HttpMethod.GET;
-  private final String dibsRemovalQueryParam = "sr_short_code=SDW";
 
-  // TODO improve design to better support multiple query strings on the same API
-  public String getEndpoint() {
-    return String.format("%s?%s", this.endpoint, dibsRemovalQueryParam);
+  public String getFullEndpoint() {
+    var fullQueryString = String.format("$where=sr_short_code in('%s','%s')", dibsCode, cableCode);
+    return String.format("%s?%s", baseEndpoint, fullQueryString);
   }
 
   public void makeRequest() {
     var restTemplate = this.generateRestTemplate();
-    var fullEndpoint = this.getEndpoint();
-    var responseEntity = restTemplate.getForEntity(fullEndpoint, Request311Record[].class);
+    var responseEntity = restTemplate.getForEntity(this.getFullEndpoint(), Request311Record[].class);
     logger.info(responseEntity.getStatusCode().toString());
     if (responseEntity.getBody() != null) {
       var arbitraryFirstRecord = Arrays.stream(responseEntity.getBody()).findFirst();
@@ -40,7 +40,7 @@ public class Requests311 implements ApiRequest {
 
   public RestTemplate generateRestTemplate() {
     return new RestTemplateBuilder()
-        .rootUri(this.getEndpoint())
+        .rootUri(this.getFullEndpoint())
         .build();
   }
 

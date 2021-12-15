@@ -1,4 +1,4 @@
-package kpatke.me.dumbdatavizapi.service;
+package kpatke.me.dumbdatavizapi.repository;
 
 import kpatke.me.dumbdatavizapi.model.CrimeRecord;
 import lombok.Getter;
@@ -18,18 +18,18 @@ public class CrimeStats implements ApiRequest {
 
   private static final Logger logger = LoggerFactory.getLogger(CrimeStats.class);
 
-  private @Value("${data.endpoints.crime}") String endpoint;
+  private @Value("${data.endpoints.crime}") String fullEndpoint;
   private final HttpMethod method = HttpMethod.GET;
 
   public RestTemplate generateRestTemplate() {
     return new RestTemplateBuilder()
-    .rootUri(endpoint)
+    .rootUri(fullEndpoint)
     .build();
   }
 
   public void makeRequest() {
     var restTemplate = this.generateRestTemplate();
-    var responseEntity = restTemplate.getForEntity(this.endpoint, CrimeRecord[].class);
+    var responseEntity = restTemplate.getForEntity(this.fullEndpoint, CrimeRecord[].class);
     logger.info(responseEntity.getStatusCode().toString());
     if (responseEntity.getBody() != null) {
       var arbitraryFirstRecord = Arrays.stream(responseEntity.getBody()).findFirst();

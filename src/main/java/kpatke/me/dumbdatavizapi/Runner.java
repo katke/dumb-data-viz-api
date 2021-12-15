@@ -1,7 +1,7 @@
 package kpatke.me.dumbdatavizapi;
 
-import kpatke.me.dumbdatavizapi.service.CrimeStats;
-import kpatke.me.dumbdatavizapi.service.Requests311;
+import kpatke.me.dumbdatavizapi.repository.CrimeStats;
+import kpatke.me.dumbdatavizapi.repository.Requests311;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
