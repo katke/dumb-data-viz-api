@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Getter
 @Component
@@ -27,15 +29,18 @@ public class CrimeStats implements ApiRequest {
     .build();
   }
 
-  public void makeRequest() {
-    var restTemplate = this.generateRestTemplate();
-    var responseEntity = restTemplate.getForEntity(this.fullEndpoint, CrimeRecord[].class);
-    logger.info(responseEntity.getStatusCode().toString());
-    if (responseEntity.getBody() != null) {
-      var arbitraryFirstRecord = Arrays.stream(responseEntity.getBody()).findFirst();
-      arbitraryFirstRecord.ifPresent(crimeRecord -> logger.info(crimeRecord.toString()));
-    } else {
-      logger.info("Response body is null");
+  public List<CrimeRecord> makeRequest() {
+    try {
+      var restTemplate = this.generateRestTemplate();
+      var responseEntity = restTemplate.getForEntity(this.getFullEndpoint(), CrimeRecord[].class);
+      if (responseEntity.getStatusCode().is2xxSuccessful()) {
+        return Arrays.asList(responseEntity.getBody());
+      } else {
+        throw new RuntimeException("Received non-2XX status code for endpoint " + this.getFullEndpoint());
+      }
+    } catch (RestClientException ex) {
+      logger.error("{} request to {} failed", this.method, this.getFullEndpoint());
+      throw ex;
     }
   }
 

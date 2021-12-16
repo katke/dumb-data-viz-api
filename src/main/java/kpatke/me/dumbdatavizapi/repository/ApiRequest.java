@@ -4,11 +4,14 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
 // TODO use CrudRepository once switched to datastore
 public interface ApiRequest {
   String getFullEndpoint();
   HttpMethod getMethod();
-  void makeRequest();
+  List<?> makeRequest();
 
   // TODO: Apparently RestTemplate to be deprecated, update to WebClient in future
   default RestTemplate generateRestTemplate() {

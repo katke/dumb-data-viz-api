@@ -24,8 +24,8 @@ public class Runner implements CommandLineRunner {
 
   public void run(String ...input) {
     try {
-      crimeStats.makeRequest();
-      requestsTo311.makeRequest();
+      var crimeResults = crimeStats.makeRequest();
+      var threeOneOneRequests = requestsTo311.makeRequest();
       System.exit(0);
     } catch(Exception ex) {
       logger.error("Error: " + ex.getMessage());

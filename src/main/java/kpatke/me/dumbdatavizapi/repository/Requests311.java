@@ -8,33 +8,40 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 @Getter
 public class Requests311 implements ApiRequest {
   private static final Logger logger = LoggerFactory.getLogger(Requests311.class);
 
-  private static @Value("${data.endpoints.311requests}") String baseEndpoint;
-  private static @Value("${data.endpoints.311requests.codes.dibs}") String dibsCode;
-  private static @Value("${data.endpoints.311requests.codes.cable}") String cableCode;
+  private @Value("${data.endpoints.311requests}") String baseEndpoint;
   private final HttpMethod method = HttpMethod.GET;
 
   public String getFullEndpoint() {
-    var fullQueryString = String.format("$where=sr_short_code in('%s','%s')", dibsCode, cableCode);
+    var fullQueryString = String.format("$where=sr_short_code in('%s','%s')",
+        ShortCodeType.DIBS_REMOVAL.code,
+        ShortCodeType.CABLE_TV_OUTAGE.code);
     return String.format("%s?%s", baseEndpoint, fullQueryString);
   }
 
-  public void makeRequest() {
-    var restTemplate = this.generateRestTemplate();
-    var responseEntity = restTemplate.getForEntity(this.getFullEndpoint(), Request311Record[].class);
-    logger.info(responseEntity.getStatusCode().toString());
-    if (responseEntity.getBody() != null) {
-      var arbitraryFirstRecord = Arrays.stream(responseEntity.getBody()).findFirst();
-      arbitraryFirstRecord.ifPresent(request311Record -> logger.info(request311Record.toString()));
-    } else {
-      logger.info("Response body is null");
+  public List<Request311Record> makeRequest() {
+    try {
+      var restTemplate = this.generateRestTemplate();
+      var responseEntity = restTemplate.getForEntity(this.getFullEndpoint(), Request311Record[].class);
+
+      if (responseEntity.getStatusCode().is2xxSuccessful()) {
+        return Arrays.asList(responseEntity.getBody());
+      } else {
+        throw new RuntimeException("Received non-2XX status code for endpoint " + this.getFullEndpoint());
+      }
+    } catch (RestClientException ex) {
+      logger.error("{} request to {} failed", this.method, this.getFullEndpoint());
+      throw ex;
     }
   }
 
@@ -42,6 +49,16 @@ public class Requests311 implements ApiRequest {
     return new RestTemplateBuilder()
         .rootUri(this.getFullEndpoint())
         .build();
+  }
+
+  enum ShortCodeType {
+    DIBS_REMOVAL("SDW"),
+    CABLE_TV_OUTAGE("OCC");
+    private String code;
+
+    ShortCodeType(String codeId) {
+      this.code = codeId;
+    }
   }
 
 }

@@ -4,6 +4,3 @@ data:
   endpoints:
     crime: "https://data.cityofchicago.org/resource/crimes.json"
     311requests: "https://data.cityofchicago.org/resource/v6vf-nfxy.json"
-      codes:
-        dibs: "SDW"
-        cable-tv: "OCC"
