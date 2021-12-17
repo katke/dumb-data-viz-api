@@ -9,6 +9,6 @@ public class EndpointSecurity extends WebSecurityConfigurerAdapter {
 
   @Override
   public void configure(HttpSecurity http) throws Exception {
-    http.authorizeRequests().antMatchers("/test").permitAll();
+    http.authorizeRequests().antMatchers("/line-graph").permitAll();
   }
 }
