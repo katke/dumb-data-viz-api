@@ -42,4 +42,11 @@ public class Request311Record {
     return String.format(template, this.requestNumber, this.createdDate, this.requestType, address);
   }
 
+  public boolean isUsableRecord() {
+    var includesLatAndLongCoordinates = StringUtils.hasText(this.latitude)
+        && StringUtils.hasText(this.longitude);
+    var includesAddressInfo = StringUtils.hasText(this.streetAddress);
+    return includesLatAndLongCoordinates || includesAddressInfo;
+  }
+
 }
