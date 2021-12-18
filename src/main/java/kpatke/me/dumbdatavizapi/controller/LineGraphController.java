@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,8 +33,8 @@ public class LineGraphController {
         .filter(Request311Record::isLineGraphValidData)
         .map(record -> {
           // raw format 2021-03-05T11:32:29.000
-          var parsedDate = LocalDate.parse(record.getCreatedDate());
-          return new Incident311(record.getRequestType(), parsedDate);
+          var parsedDateTime = LocalDateTime.parse(record.getCreatedDate());
+          return new Incident311(record.getRequestType(), parsedDateTime.toLocalDate());
         })
         .collect(Collectors.toList());
   }
