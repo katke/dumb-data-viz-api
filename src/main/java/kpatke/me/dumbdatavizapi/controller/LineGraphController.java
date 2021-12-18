@@ -3,6 +3,8 @@ package kpatke.me.dumbdatavizapi.controller;
 import kpatke.me.dumbdatavizapi.model.Incident311;
 import kpatke.me.dumbdatavizapi.model.Request311Record;
 import kpatke.me.dumbdatavizapi.repository.Requests311;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,10 +12,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static kpatke.me.dumbdatavizapi.repository.Requests311.ShortCodeType.*;
-
 @RestController
 public class LineGraphController {
+  @Autowired
+  Requests311 lineGraph311Request;
 
   @GetMapping("/line-graph")
   public List<Incident311> test() {
@@ -22,10 +24,7 @@ public class LineGraphController {
   }
 
   private List<Request311Record> get311Data() {
-    var request311 = new Requests311(List.of(
-        ICE_SNOW_REMOVAL, UNCLEARED_SNOW_SIDEWALK, SIDEWALK_CAFE_COMPLAINT,
-        BEE_WASP_REMOVAL, COYOTE_INTERACTION));
-    return request311.makeRequest();
+    return lineGraph311Request.makeRequest();
   }
 
   private List<Incident311> remapData(List<Request311Record> rawData) {
