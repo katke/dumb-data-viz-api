@@ -49,4 +49,8 @@ public class Request311Record {
     return includesLatAndLongCoordinates || includesAddressInfo;
   }
 
+  public boolean isLineGraphValidData() {
+    return StringUtils.hasText(this.createdDate);
+  }
+
 }

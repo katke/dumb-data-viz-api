@@ -15,17 +15,24 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@Getter
 public class Requests311 implements ApiRequest {
   private static final Logger logger = LoggerFactory.getLogger(Requests311.class);
 
   private @Value("${data.endpoints.311requests}") String baseEndpoint;
   private final HttpMethod method = HttpMethod.GET;
+  private final List<ShortCodeType> shortTypeFilters;
+
+  public Requests311(List<ShortCodeType> filterByTypes) {
+    this.shortTypeFilters = filterByTypes;
+  }
 
   public String getFullEndpoint() {
-    var fullQueryString = String.format("$where=sr_short_code in('%s','%s')",
-        ShortCodeType.DIBS_REMOVAL.code,
-        ShortCodeType.CABLE_TV_OUTAGE.code);
+    var filterTemplate = "'%s',";
+    var strBuilder = new StringBuilder().append("$where=sr_short_code in(");
+    shortTypeFilters.stream().forEach(shortCode -> strBuilder.append(String.format(filterTemplate, shortCode.code)));
+    strBuilder.deleteCharAt(strBuilder.length() - 1)
+        .append(")");
+    var fullQueryString = strBuilder.toString();
     return String.format("%s?%s", baseEndpoint, fullQueryString);
   }
 
@@ -51,9 +58,14 @@ public class Requests311 implements ApiRequest {
         .build();
   }
 
-  enum ShortCodeType {
+  public enum ShortCodeType {
     DIBS_REMOVAL("SDW"),
-    CABLE_TV_OUTAGE("OCC");
+    CABLE_TV_OUTAGE("OCC"),
+    ICE_SNOW_REMOVAL("SDO"),
+    SIDEWALK_CAFE_COMPLAINT("CAFE"),
+    BEE_WASP_REMOVAL("SGG"),
+    COYOTE_INTERACTION("CIAC"),
+    UNCLEARED_SNOW_SIDEWALK("SWSNOREM");
     private String code;
 
     ShortCodeType(String codeId) {

@@ -10,7 +10,6 @@ import java.util.List;
 // TODO use CrudRepository once switched to datastore
 public interface ApiRequest {
   String getFullEndpoint();
-  HttpMethod getMethod();
   List<?> makeRequest();
 
   // TODO: Apparently RestTemplate to be deprecated, update to WebClient in future
