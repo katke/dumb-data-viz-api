@@ -15,12 +15,17 @@ public class Requests311 implements ApiRequest {
   private static final Logger logger = LoggerFactory.getLogger(Requests311.class);
 
   private final String baseEndpoint;
+  private final String apiUsername;
+  private final String apiSecret;
   private final HttpMethod method = HttpMethod.GET;
   private final List<ShortCodeType> shortTypeFilters;
 
-  public Requests311(String baseEndpoint, List<ShortCodeType> filterByTypes) {
+  public Requests311(String baseEndpoint, List<ShortCodeType> filterByTypes,
+                     String user, String secret) {
     this.shortTypeFilters = filterByTypes;
     this.baseEndpoint = baseEndpoint;
+    this.apiUsername = user;
+    this.apiSecret = secret;
   }
 
   public String getFullEndpoint() {
@@ -52,6 +57,7 @@ public class Requests311 implements ApiRequest {
   public RestTemplate generateRestTemplate() {
     return new RestTemplateBuilder()
         .rootUri(this.getFullEndpoint())
+        .basicAuthentication(this.apiUsername, this.apiSecret)
         .build();
   }
 
