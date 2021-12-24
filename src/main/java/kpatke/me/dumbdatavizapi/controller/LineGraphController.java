@@ -19,16 +19,16 @@ public class LineGraphController {
   Requests311 lineGraph311Request;
 
   @GetMapping("/line-graph")
-  public List<Incident311> test() {
+  public List<Incident311> lineGraph311Requests() {
     var records = get311Data();
     return remapData(records);
   }
 
-  private List<Request311Record> get311Data() {
+  List<Request311Record> get311Data() {
     return lineGraph311Request.makeRequest();
   }
 
-  private List<Incident311> remapData(List<Request311Record> rawData) {
+  List<Incident311> remapData(List<Request311Record> rawData) {
     return rawData.stream()
         .filter(Request311Record::isLineGraphValidData)
         .map(record -> {
