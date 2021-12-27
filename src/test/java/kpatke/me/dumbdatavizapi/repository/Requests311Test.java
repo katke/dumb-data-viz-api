@@ -15,13 +15,13 @@ import java.util.List;
 import static kpatke.me.dumbdatavizapi.repository.Requests311.ShortCodeType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Profile("test")
 public class Requests311Test {
   private static final String endpoint = "www.endpoint.com";
   private static final String test = "test";
+  private static final RestTemplate restTemplateMock = mock(RestTemplate.class);
 
   @Test
   @DisplayName("Happy path test that it maps 311 request types correctly into query string")
@@ -29,8 +29,7 @@ public class Requests311Test {
     var requests311 = new Requests311(
         endpoint,
         List.of(SIDEWALK_CAFE_COMPLAINT, COYOTE_INTERACTION, BEE_WASP_REMOVAL),
-        test,
-        test);
+        restTemplateMock);
     var actual = requests311.getFullEndpoint();
     var expected = "www.endpoint.com?$where=sr_short_code in('CAFE','CIAC','SGG')";
     assertEquals(expected, actual);
@@ -41,8 +40,7 @@ public class Requests311Test {
     var requests311 = new Requests311(
         endpoint,
         List.of(COYOTE_INTERACTION),
-        test,
-        test);
+        restTemplateMock);
     var actual = requests311.getFullEndpoint();
     var expected = "www.endpoint.com?$where=sr_short_code in('CIAC')";
     assertEquals(expected, actual);
@@ -53,31 +51,37 @@ public class Requests311Test {
     var requests311 = new Requests311(
         endpoint,
         List.of(),
-        test,
-        test);
+        restTemplateMock);
     assertThrows(IllegalArgumentException.class, requests311::getFullEndpoint);
   }
 
   @Test
   void mockTest() {
-    var responseEntity = Mockito.mock(ResponseEntity.class);
-    when(responseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
     var record311 = new Request311Record();
     record311.setRequestType("DIBS_REMOVAL");
     record311.setCreatedDate("2021-03-05T11:32:29.000");
-    when(responseEntity.getBody()).thenReturn(new Request311Record[]{record311});
-    var requests311 = new Requests311(endpoint, List.of(DIBS_REMOVAL), test, test);
-    var requests311Spy = Mockito.spy(requests311);
-    when(requests311Spy.getFullEndpoint()).thenReturn(endpoint);
-    var restTemplate = new RestTemplateBuilder().rootUri(endpoint).build();
-    var restTemplateSpy = spy(restTemplate);
-    when(restTemplateSpy.getForEntity(endpoint, Request311Record[].class)).thenReturn(responseEntity);
-    when(requests311Spy.generateRestTemplate()).thenReturn(restTemplateSpy);
-    when(requests311Spy.generateRestTemplate()).thenReturn(restTemplateSpy);
+    var successfulResponseEntity = mock(ResponseEntity.class);
+    var requests311 = new Requests311(endpoint, List.of(DIBS_REMOVAL), restTemplateMock);
+
+    when(restTemplateMock.getForEntity("www.endpoint.com?$where=sr_short_code in('SDW')", Request311Record[].class)).thenReturn(successfulResponseEntity);
+    when(successfulResponseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
+    when(successfulResponseEntity.getBody()).thenReturn(new Request311Record[]{record311});
+
     var actual = requests311.getData();
     assertEquals(record311, actual.get(0));
     assertEquals(1, actual.size());
-  // TODO inject rest template as a param
+  }
+
+  @Test
+  void shouldThrowExceptionWithNon2XXResponse() {
+    var errorResponseEntity = mock(ResponseEntity.class);
+    var requests311 = new Requests311(endpoint, List.of(DIBS_REMOVAL), restTemplateMock);
+
+    when(restTemplateMock.getForEntity("www.endpoint.com?$where=sr_short_code in('SDW')", Request311Record[].class)).thenReturn(errorResponseEntity);
+    when(errorResponseEntity.getStatusCode()).thenReturn(HttpStatus.FORBIDDEN);
+    when(errorResponseEntity.getBody()).thenReturn(null);
+
+    assertThrows(RuntimeException.class, requests311::getData);
   }
 
 }

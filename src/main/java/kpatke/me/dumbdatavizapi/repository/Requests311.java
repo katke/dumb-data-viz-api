@@ -15,17 +15,15 @@ public class Requests311 implements ApiRequest {
   private static final Logger logger = LoggerFactory.getLogger(Requests311.class);
 
   private final String baseEndpoint;
-  private final String apiUsername;
-  private final String apiSecret;
   private final HttpMethod method = HttpMethod.GET;
   private final List<ShortCodeType> shortTypeFilters;
+  private final RestTemplate restTemplate;
 
   public Requests311(String baseEndpoint, List<ShortCodeType> filterByTypes,
-                     String user, String secret) {
+                     RestTemplate restTemplate) {
     this.shortTypeFilters = filterByTypes;
     this.baseEndpoint = baseEndpoint;
-    this.apiUsername = user;
-    this.apiSecret = secret;
+    this.restTemplate = restTemplate;
   }
 
   public String getFullEndpoint() {
@@ -43,8 +41,7 @@ public class Requests311 implements ApiRequest {
 
   public List<Request311Record> getData() {
     try {
-      var restTemplate = this.generateRestTemplate();
-      var responseEntity = restTemplate.getForEntity(this.getFullEndpoint(), Request311Record[].class);
+      var responseEntity = this.restTemplate.getForEntity(this.getFullEndpoint(), Request311Record[].class);
 
       if (responseEntity.getStatusCode().is2xxSuccessful()) {
         return Arrays.asList(responseEntity.getBody());
@@ -55,13 +52,6 @@ public class Requests311 implements ApiRequest {
       logger.error("{} request to {} failed", this.method, this.getFullEndpoint());
       throw ex;
     }
-  }
-
-  public RestTemplate generateRestTemplate() {
-    return new RestTemplateBuilder()
-        .rootUri(this.getFullEndpoint())
-        .basicAuthentication(this.apiUsername, this.apiSecret)
-        .build();
   }
 
   public enum ShortCodeType {
