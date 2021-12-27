@@ -1,6 +1,7 @@
 package kpatke.me.dumbdatavizapi.configuration;
 
 
+import kpatke.me.dumbdatavizapi.repository.CrimeStats;
 import kpatke.me.dumbdatavizapi.repository.Requests311;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -34,6 +35,13 @@ public class ApiRequestConfiguration {
         BEE_WASP_REMOVAL
     );
     return new Requests311(baseEndpoint311, requestTypes, restTemplate);
+  }
+
+  @Bean
+  public CrimeStats crimeStats(
+      RestTemplateBuilder restTemplateBuilder,
+      @Value("${data.endpoints.crime}") String chicagoCrimeEndpoint) {
+    return new CrimeStats(restTemplateBuilder.build(), chicagoCrimeEndpoint);
   }
 
 }

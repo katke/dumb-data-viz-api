@@ -4,35 +4,29 @@ import kpatke.me.dumbdatavizapi.model.CrimeRecord;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Getter
-@Component
 public class CrimeStats implements ApiRequest {
 
   private static final Logger logger = LoggerFactory.getLogger(CrimeStats.class);
 
-  private @Value("${data.endpoints.crime}") String fullEndpoint;
+  @Getter private final String fullEndpoint;
   private final HttpMethod method = HttpMethod.GET;
+  private final RestTemplate restTemplate;
 
-  public RestTemplate generateRestTemplate() {
-    return new RestTemplateBuilder()
-    .rootUri(fullEndpoint)
-    .build();
+  public CrimeStats(RestTemplate restTemplate, String endpoint) {
+    this.fullEndpoint = endpoint;
+    this.restTemplate = restTemplate;
   }
 
   public List<CrimeRecord> getData() {
     try {
-      var restTemplate = this.generateRestTemplate();
-      var responseEntity = restTemplate.getForEntity(this.fullEndpoint, CrimeRecord[].class);
+      var responseEntity = this.restTemplate.getForEntity(this.fullEndpoint, CrimeRecord[].class);
       if (responseEntity.getStatusCode().is2xxSuccessful()) {
         return Arrays.asList(responseEntity.getBody());
       } else {

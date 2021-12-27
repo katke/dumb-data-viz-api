@@ -3,7 +3,6 @@ package kpatke.me.dumbdatavizapi.repository;
 import kpatke.me.dumbdatavizapi.model.Request311Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
