@@ -29,10 +29,10 @@ public class CrimeStats implements ApiRequest {
     .build();
   }
 
-  public List<CrimeRecord> makeRequest() {
+  public List<CrimeRecord> getData() {
     try {
       var restTemplate = this.generateRestTemplate();
-      var responseEntity = restTemplate.getForEntity(this.getFullEndpoint(), CrimeRecord[].class);
+      var responseEntity = restTemplate.getForEntity(this.fullEndpoint, CrimeRecord[].class);
       if (responseEntity.getStatusCode().is2xxSuccessful()) {
         return Arrays.asList(responseEntity.getBody());
       } else {

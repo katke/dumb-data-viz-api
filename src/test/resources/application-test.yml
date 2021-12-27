@@ -1,0 +1,9 @@
+application:
+  name: "dumb-data-viz-api-test"
+data:
+  pagination: 2
+  endpoints:
+    crime: "www.chicagocrime.com"
+    311requests: "www.chicago311requests.com"
+CHI_OPEN_DATA_USER: "test-user"
+CHI_OPEN_DATA_SECRET: "test-secret"

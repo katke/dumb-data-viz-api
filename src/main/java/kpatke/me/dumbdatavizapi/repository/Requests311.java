@@ -29,6 +29,9 @@ public class Requests311 implements ApiRequest {
   }
 
   public String getFullEndpoint() {
+    if (this.shortTypeFilters.isEmpty()) {
+      throw new IllegalArgumentException("Must provide at least one 311 request type");
+    }
     var filterTemplate = "'%s',";
     var strBuilder = new StringBuilder().append("$where=sr_short_code in(");
     shortTypeFilters.stream().forEach(shortCode -> strBuilder.append(String.format(filterTemplate, shortCode.code)));
@@ -38,7 +41,7 @@ public class Requests311 implements ApiRequest {
     return String.format("%s?%s", baseEndpoint, fullQueryString);
   }
 
-  public List<Request311Record> makeRequest() {
+  public List<Request311Record> getData() {
     try {
       var restTemplate = this.generateRestTemplate();
       var responseEntity = restTemplate.getForEntity(this.getFullEndpoint(), Request311Record[].class);

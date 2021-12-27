@@ -34,7 +34,6 @@ public class LineGraphControllerTest {
     var missingCreatedDateRecord = new Request311Record();
     missingCreatedDateRecord.setRequestType("SIDEWALK_CAFE");
     return List.of(record1, missingCreatedDateRecord);
-
   }
 
 }
